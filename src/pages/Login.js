@@ -35,9 +35,7 @@ export default function Login() {
       <div className="login-card">
         <div className="login-logo-wrap">
           <div className="login-logo-circle">
-            <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-              <path d="M10 13h16M18 13v10M13 23h10" stroke="#fff" strokeWidth="2.8" strokeLinecap="round"/>
-            </svg>
+            <img src="/logo.png" alt="Ticomia" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}}/>
           </div>
         </div>
         <h1 className="login-titulo">Ticomia</h1>
@@ -64,9 +62,9 @@ export default function Login() {
         .login-card { width:100%; max-width:380px; background:rgba(255,255,255,0.93); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-radius:24px; padding:40px 36px; box-shadow:0 20px 60px rgba(255,107,26,0.15),0 4px 20px rgba(0,0,0,0.06); border:1px solid rgba(255,107,26,0.12); text-align:center; position:relative; z-index:1; animation:cardIn 0.5s cubic-bezier(0.22,1,0.36,1); }
         @keyframes cardIn { from { opacity:0; transform:translateY(20px) scale(0.98); } to { opacity:1; transform:none; } }
         .login-logo-wrap { margin-bottom:16px; }
-        .login-logo-circle { width:64px; height:64px; background:linear-gradient(135deg,#FF8C3A,#FF6B1A); border-radius:18px; display:flex; align-items:center; justify-content:center; margin:0 auto; animation:pulsar 2.5s ease-in-out infinite; transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-        .login-logo-circle:hover { transform:scale(1.1) rotate(-4deg); }
-        @keyframes pulsar { 0%,100%{box-shadow:0 8px 24px rgba(255,107,26,0.35);} 50%{box-shadow:0 8px 32px rgba(255,107,26,0.6);} }
+        .login-logo-circle { width:100px; height:100px; background:#000; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto; overflow:hidden; box-shadow:0 8px 28px rgba(0,0,0,0.25),0 0 0 3px rgba(255,107,26,0.3); animation:pulsar 2.5s ease-in-out infinite; transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        .login-logo-circle:hover { transform:scale(1.08) rotate(-2deg); }
+        @keyframes pulsar { 0%,100%{box-shadow:0 8px 28px rgba(0,0,0,0.25),0 0 0 3px rgba(255,107,26,0.3);} 50%{box-shadow:0 8px 36px rgba(0,0,0,0.3),0 0 0 5px rgba(255,107,26,0.5);} }
         .login-titulo { font-size:30px; font-weight:800; background:linear-gradient(135deg,#FF6B1A,#E85000); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin:0 0 4px; letter-spacing:-0.5px; }
         .login-sub { font-size:13px; color:#A0785A; margin-bottom:28px; }
         .login-form { display:flex; flex-direction:column; gap:14px; text-align:left; }
@@ -75,7 +73,7 @@ export default function Login() {
         .login-input { padding:11px 14px; border:1.5px solid #FFD4B8; border-radius:12px; font-size:15px; background:#FFFAF7; color:#3A1F0D; font-family:inherit; transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s; }
         .login-input:focus { outline:none; border-color:#FF6B1A; box-shadow:0 0 0 3px rgba(255,107,26,0.15); transform:translateY(-1px); }
         .login-input::placeholder { color:#D4B8A0; }
-        .login-erro { font-size:13px; color:#D94000; text-align:center; background:#FFF0EA; padding:8px 12px; border-radius:8; animation:shake 0.4s ease; }
+        .login-erro { font-size:13px; color:#D94000; text-align:center; background:#FFF0EA; padding:8px 12px; border-radius:8px; animation:shake 0.4s ease; }
         @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
         .login-btn { margin-top:6px; padding:13px; background:linear-gradient(135deg,#FF8C3A,#FF6B1A); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(255,107,26,0.4); transition:transform 0.15s,box-shadow 0.15s,filter 0.2s; letter-spacing:0.3px; }
         .login-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 6px 24px rgba(255,107,26,0.5); filter:brightness(1.05); }
