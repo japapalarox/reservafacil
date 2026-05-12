@@ -43,33 +43,33 @@ export default function Carro() {
   }
 
   return (
-    <div style={s.wrap}>
-      <h2 style={s.titulo}>Reserva do Gol</h2>
+    <div className="carro-root">
+      <h2 className="carro-titulo">Reserva do Gol</h2>
 
-      <div style={s.card}>
+      <div className="carro-card">
         {/* Cabeçalho do carro */}
-        <div style={s.carroHeader}>
-          <div style={s.carroIcone}>🚗</div>
+        <div className="carro-header">
+          <div className="carro-icone">🚗</div>
           <div>
-            <div style={s.carroNome}>Volkswagen Gol</div>
-            <div style={s.carroInfo}>Placa ABC-1234 · Branco · 2020</div>
+            <div className="carro-nome">Volkswagen Gol</div>
+            <div className="carro-info">Placa ABC-1234 · Branco · 2020</div>
           </div>
         </div>
 
         {/* Filtro de data */}
-        <div style={s.filtro}>
+        <div className="carro-filtro">
           <span>📅</span>
           <input type="date" value={dataSel} min={hoje()}
-            onChange={e => setDataSel(e.target.value)} style={s.inputData} />
+            onChange={e => setDataSel(e.target.value)} className="carro-input-data" />
         </div>
 
         {/* Reservas do dia */}
-        <div style={s.secao}>
-          <p style={s.secaoTitulo}>Reservas para este dia:</p>
+        <div className="carro-secao">
+          <p className="carro-secao-titulo">Reservas para este dia:</p>
           {reservasDia.length === 0
-            ? <p style={s.vazio}>✓ Carro livre neste dia</p>
+            ? <p className="carro-vazio">✓ Carro livre neste dia</p>
             : reservasDia.map(r => (
-              <div key={r.id} style={s.ocupBlock}>
+              <div key={r.id} className="carro-ocup-block">
                 🕐 {r.inicio.slice(0,5)}–{r.fim.slice(0,5)} · {r.motivo}
               </div>
             ))
@@ -77,69 +77,79 @@ export default function Carro() {
         </div>
 
         {/* Formulário */}
-        <div style={s.formGrid}>
-          <div style={s.campo}>
-            <label style={s.label}>Saída</label>
+        <div className="carro-form-grid">
+          <div className="carro-campo">
+            <label className="carro-label">Saída</label>
             <select value={form.inicio}
               onChange={e => setForm(f => ({ ...f, inicio: e.target.value }))}
-              style={s.select}>
+              className="carro-select">
               {HORARIOS.map(h => <option key={h}>{h}</option>)}
             </select>
           </div>
-          <div style={s.campo}>
-            <label style={s.label}>Retorno</label>
+          <div className="carro-campo">
+            <label className="carro-label">Retorno</label>
             <select value={form.fim}
               onChange={e => setForm(f => ({ ...f, fim: e.target.value }))}
-              style={s.select}>
+              className="carro-select">
               {HORARIOS.filter(h => h > form.inicio).map(h => <option key={h}>{h}</option>)}
             </select>
           </div>
         </div>
 
-        <div style={s.campo}>
-          <label style={s.label}>Destino / Motivo</label>
+        <div className="carro-campo">
+          <label className="carro-label">Destino / Motivo</label>
           <input value={form.motivo}
             onChange={e => setForm(f => ({ ...f, motivo: e.target.value }))}
             placeholder="Ex: Visita ao cliente"
-            style={s.input} />
+            className="carro-input" />
         </div>
 
-        {ocupado && <p style={s.aviso}>⚠️ Horário conflita com reserva existente.</p>}
-        {erro    && <p style={s.erro}>{erro}</p>}
-        {ok      && <p style={s.sucesso}>✓ Gol reservado com sucesso!</p>}
+        {ocupado && <p className="carro-aviso">⚠️ Horário conflita com reserva existente.</p>}
+        {erro    && <p className="carro-erro">{erro}</p>}
+        {ok      && <p className="carro-sucesso">✓ Gol reservado com sucesso!</p>}
 
-        <button onClick={salvar} disabled={salvando || ocupado} style={{
-          ...s.btn,
-          opacity: ocupado ? .5 : 1,
-        }}>
+        <button onClick={salvar} disabled={salvando || ocupado} className={`carro-btn ${ocupado ? 'carro-btn-disabled' : ''}`}>
           {salvando ? 'Salvando…' : '✓ Reservar Gol'}
         </button>
       </div>
+
+      <style>{`
+        .carro-root { max-width:600px; margin:0 auto; padding:24px 16px; animation:fadeIn 0.35s cubic-bezier(0.22,1,0.36,1); }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:none;} }
+        .carro-titulo { font-size:22px; font-weight:800; color:#2C2C2A; margin-bottom:20px; letter-spacing:-0.3px; }
+        .carro-card { background:rgba(255,255,255,0.9); backdrop-filter:blur(12px); border-radius:18px; border:1px solid rgba(255,107,26,0.12); padding:28px; box-shadow:0 4px 20px rgba(0,0,0,0.04); }
+        .carro-header { display:flex; align-items:center; gap:14px; margin-bottom:24px; }
+        .carro-icone { width:56px; height:56px; background:linear-gradient(135deg,#E6F1FB,#D6E8F5); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; box-shadow:0 4px 12px rgba(24,95,165,0.15); transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        .carro-card:hover .carro-icone { transform:scale(1.08) rotate(-4deg); }
+        .carro-nome { font-weight:700; font-size:17px; color:#2C2C2A; }
+        .carro-info { font-size:12px; color:#888; margin-top:3px; }
+        .carro-filtro { display:flex; align-items:center; gap:10px; margin-bottom:20px; padding:12px 14px; background:#FFFAF7; border-radius:12px; border:1px solid #FFD4B8; }
+        .carro-input-data { padding:8px 12px; border:1.5px solid #FFD4B8; border-radius:10px; font-size:14px; font-family:inherit; background:#fff; color:#3A1F0D; transition:all 0.2s; }
+        .carro-input-data:focus { outline:none; border-color:#FF6B1A; box-shadow:0 0 0 3px rgba(255,107,26,0.12); }
+        .carro-secao { margin-bottom:20px; }
+        .carro-secao-titulo { font-size:13px; font-weight:600; color:#5F5E5A; margin-bottom:10px; }
+        .carro-vazio { font-size:13px; color:#3B6D11; background:#EAF3DE; padding:10px 14px; border-radius:10px; }
+        .carro-ocup-block { background:#FCEBEB; border-radius:10px; padding:10px 14px; font-size:13px; color:#A32D2D; margin-bottom:6px; border-left:3px solid #E24B4A; animation:slideIn 0.3s ease; }
+        @keyframes slideIn { from{opacity:0;transform:translateX(-8px);} to{opacity:1;transform:none;} }
+        .carro-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+        .carro-campo { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+        .carro-label { font-size:12px; font-weight:600; color:#7A5540; }
+        .carro-select { padding:10px 12px; border:1.5px solid #FFD4B8; border-radius:10px; font-size:14px; font-family:inherit; background:#FFFAF7; color:#3A1F0D; transition:all 0.2s; cursor:pointer; }
+        .carro-select:focus { outline:none; border-color:#FF6B1A; box-shadow:0 0 0 3px rgba(255,107,26,0.12); }
+        .carro-input { padding:11px 14px; border:1.5px solid #FFD4B8; border-radius:10px; font-size:14px; font-family:inherit; background:#FFFAF7; color:#3A1F0D; transition:all 0.2s; }
+        .carro-input:focus { outline:none; border-color:#FF6B1A; box-shadow:0 0 0 3px rgba(255,107,26,0.12); transform:translateY(-1px); }
+        .carro-input::placeholder { color:#D4B8A0; }
+        .carro-aviso { font-size:13px; color:#854F0B; margin-bottom:8px; background:#FAEEDA; padding:10px 14px; border-radius:10px; border-left:3px solid #FFB347; animation:shake 0.4s ease; }
+        .carro-erro { font-size:13px; color:#E24B4A; margin-bottom:8px; background:#FCEBEB; padding:10px 14px; border-radius:10px; border-left:3px solid #E24B4A; animation:shake 0.4s ease; }
+        @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+        .carro-sucesso { font-size:13px; color:#3B6D11; background:#EAF3DE; padding:12px 14px; border-radius:10px; border-left:3px solid #3B6D11; animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes popIn { from{transform:scale(0.9);opacity:0;} to{transform:scale(1);opacity:1;} }
+        .carro-btn { width:100%; padding:14px; background:linear-gradient(135deg,#1D9E75,#16A085); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(29,158,117,0.3); transition:all 0.2s ease; letter-spacing:0.3px; }
+        .carro-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 6px 24px rgba(29,158,117,0.4); filter:brightness(1.05); }
+        .carro-btn:active:not(:disabled) { transform:scale(0.97); }
+        .carro-btn:disabled { opacity:0.5; cursor:not-allowed; filter:grayscale(0.3); }
+        .carro-btn-disabled { opacity:0.5; cursor:not-allowed; }
+      `}</style>
     </div>
   )
-}
-
-const s = {
-  wrap:       { maxWidth: 600, margin: '0 auto', padding: '24px 16px' },
-  titulo:     { fontSize: 20, fontWeight: 700, marginBottom: 20 },
-  card:       { background: '#fff', borderRadius: 14, border: '1px solid #D3D1C7', padding: 24 },
-  carroHeader:{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 },
-  carroIcone: { width: 52, height: 52, background: '#E6F1FB', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 },
-  carroNome:  { fontWeight: 700, fontSize: 16 },
-  carroInfo:  { fontSize: 12, color: '#888', marginTop: 2 },
-  filtro:     { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 },
-  inputData:  { padding: '8px 12px', border: '1px solid #D3D1C7', borderRadius: 10, fontSize: 14, fontFamily: 'inherit' },
-  secao:      { marginBottom: 20 },
-  secaoTitulo:{ fontSize: 13, fontWeight: 600, color: '#5F5E5A', marginBottom: 8 },
-  vazio:      { fontSize: 13, color: '#3B6D11' },
-  ocupBlock:  { background: '#FCEBEB', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#A32D2D', marginBottom: 6 },
-  formGrid:   { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 },
-  campo:      { display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 },
-  label:      { fontSize: 12, fontWeight: 600, color: '#5F5E5A' },
-  select:     { padding: '9px 12px', border: '1px solid #D3D1C7', borderRadius: 10, fontSize: 14, fontFamily: 'inherit' },
-  input:      { padding: '10px 14px', border: '1px solid #D3D1C7', borderRadius: 10, fontSize: 14, fontFamily: 'inherit' },
-  aviso:      { fontSize: 13, color: '#854F0B', marginBottom: 8 },
-  erro:       { fontSize: 13, color: '#E24B4A', marginBottom: 8 },
-  sucesso:    { fontSize: 13, color: '#3B6D11', background: '#EAF3DE', padding: '10px 14px', borderRadius: 8, marginBottom: 8 },
-  btn:        { width: '100%', padding: 13, background: '#1D9E75', color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' },
 }

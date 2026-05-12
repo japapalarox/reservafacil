@@ -6,10 +6,9 @@ import { useAuth } from '../hooks/useAuth'
 export default function Login() {
   const { login } = useAuth()
   const navigate  = useNavigate()
-
-  const [email, setEmail]   = useState('')
-  const [senha, setSenha]   = useState('')
-  const [erro, setErro]     = useState('')
+  const [email, setEmail]     = useState('')
+  const [senha, setSenha]     = useState('')
+  const [erro, setErro]       = useState('')
   const [loading, setLoading] = useState(false)
 
   async function entrar(e) {
@@ -19,7 +18,7 @@ export default function Login() {
     try {
       await login(email.trim(), senha)
       navigate('/')
-    } catch (err) {
+    } catch {
       setErro('Email ou senha inválidos.')
     } finally {
       setLoading(false)
@@ -27,95 +26,72 @@ export default function Login() {
   }
 
   return (
-    <div style={s.fundo}>
-      <div style={s.card}>
-        <div style={s.icone}>📅</div>
-        <h1 style={s.titulo}>ReservaFácil</h1>
-        <p style={s.sub}>Salas e veículos em um clique</p>
-
-        <form onSubmit={entrar} style={s.form}>
-          <div style={s.campo}>
-            <label style={s.label}>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              required
-              style={s.input}
-            />
-          </div>
-          <div style={s.campo}>
-            <label style={s.label}>Senha</label>
-            <input
-              type="password"
-              value={senha}
-              onChange={e => setSenha(e.target.value)}
-              placeholder="••••••••"
-              required
-              style={s.input}
-            />
-          </div>
-
-          {erro && <p style={s.erro}>{erro}</p>}
-
-          <button type="submit" disabled={loading} style={s.btn}>
-            {loading ? 'Entrando…' : 'Entrar'}
-          </button>
-        </form>
-
-        <p style={s.rodape}>
-          Não tem conta? Fale com o administrador do sistema.
-        </p>
+    <div className="login-fundo">
+      <div className="login-bolhas">
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="login-bolha" style={bolhaEstilo(i)} />
+        ))}
       </div>
+      <div className="login-card">
+        <div className="login-logo-wrap">
+          <div className="login-logo-circle">
+            <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
+              <path d="M10 13h16M18 13v10M13 23h10" stroke="#fff" strokeWidth="2.8" strokeLinecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <h1 className="login-titulo">Ticomia</h1>
+        <p className="login-sub">Sistema de Reservas</p>
+        <form onSubmit={entrar} className="login-form">
+          <div className="login-campo">
+            <label className="login-label">Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="seu@email.com" required className="login-input"/>
+          </div>
+          <div className="login-campo">
+            <label className="login-label">Senha</label>
+            <input type="password" value={senha} onChange={e => setSenha(e.target.value)} placeholder="••••••••" required className="login-input"/>
+          </div>
+          {erro && <p className="login-erro">{erro}</p>}
+          <button type="submit" disabled={loading} className="login-btn">{loading ? 'Entrando…' : 'Entrar'}</button>
+        </form>
+        <p className="login-rodape">Não tem conta? Fale com o administrador.</p>
+      </div>
+      <style>{`
+        .login-fundo { min-height:100vh; background:linear-gradient(160deg,#FFF3EC 0%,#FFF9F5 50%,#FFE8D6 100%); display:flex; align-items:center; justify-content:center; padding:16px; position:relative; overflow:hidden; }
+        .login-bolhas { position:absolute; inset:0; pointer-events:none; }
+        .login-bolha { position:absolute; border-radius:50%; background:radial-gradient(circle at 30% 30%,rgba(255,140,60,0.22),rgba(255,107,26,0.06)); animation:subir linear infinite; }
+        @keyframes subir { 0%{transform:translateY(100vh) scale(1); opacity:0;} 10%{opacity:0.15;} 90%{opacity:0.08;} 100%{transform:translateY(-150px) scale(1.15); opacity:0;} }
+        .login-card { width:100%; max-width:380px; background:rgba(255,255,255,0.93); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-radius:24px; padding:40px 36px; box-shadow:0 20px 60px rgba(255,107,26,0.15),0 4px 20px rgba(0,0,0,0.06); border:1px solid rgba(255,107,26,0.12); text-align:center; position:relative; z-index:1; animation:cardIn 0.5s cubic-bezier(0.22,1,0.36,1); }
+        @keyframes cardIn { from { opacity:0; transform:translateY(20px) scale(0.98); } to { opacity:1; transform:none; } }
+        .login-logo-wrap { margin-bottom:16px; }
+        .login-logo-circle { width:64px; height:64px; background:linear-gradient(135deg,#FF8C3A,#FF6B1A); border-radius:18px; display:flex; align-items:center; justify-content:center; margin:0 auto; animation:pulsar 2.5s ease-in-out infinite; transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        .login-logo-circle:hover { transform:scale(1.1) rotate(-4deg); }
+        @keyframes pulsar { 0%,100%{box-shadow:0 8px 24px rgba(255,107,26,0.35);} 50%{box-shadow:0 8px 32px rgba(255,107,26,0.6);} }
+        .login-titulo { font-size:30px; font-weight:800; background:linear-gradient(135deg,#FF6B1A,#E85000); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin:0 0 4px; letter-spacing:-0.5px; }
+        .login-sub { font-size:13px; color:#A0785A; margin-bottom:28px; }
+        .login-form { display:flex; flex-direction:column; gap:14px; text-align:left; }
+        .login-campo { display:flex; flex-direction:column; gap:5px; }
+        .login-label { font-size:12px; font-weight:600; color:#7A5540; }
+        .login-input { padding:11px 14px; border:1.5px solid #FFD4B8; border-radius:12px; font-size:15px; background:#FFFAF7; color:#3A1F0D; font-family:inherit; transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s; }
+        .login-input:focus { outline:none; border-color:#FF6B1A; box-shadow:0 0 0 3px rgba(255,107,26,0.15); transform:translateY(-1px); }
+        .login-input::placeholder { color:#D4B8A0; }
+        .login-erro { font-size:13px; color:#D94000; text-align:center; background:#FFF0EA; padding:8px 12px; border-radius:8; animation:shake 0.4s ease; }
+        @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+        .login-btn { margin-top:6px; padding:13px; background:linear-gradient(135deg,#FF8C3A,#FF6B1A); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(255,107,26,0.4); transition:transform 0.15s,box-shadow 0.15s,filter 0.2s; letter-spacing:0.3px; }
+        .login-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 6px 24px rgba(255,107,26,0.5); filter:brightness(1.05); }
+        .login-btn:active:not(:disabled) { transform:scale(0.97); }
+        .login-btn:disabled { opacity:0.7; cursor:not-allowed; }
+        .login-rodape { font-size:12px; color:#B08060; margin-top:20px; }
+      `}</style>
     </div>
   )
 }
 
-const s = {
-  fundo: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'linear-gradient(135deg, #E1F5EE 0%, #f5f5f0 50%, #E6F1FB 100%)',
-    padding: 16,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 380,
-    background: '#fff',
-    borderRadius: 20,
-    padding: '36px 32px',
-    boxShadow: '0 8px 40px rgba(0,0,0,.1)',
-    textAlign: 'center',
-  },
-  icone: { fontSize: 40, marginBottom: 8 },
-  titulo: { fontSize: 24, fontWeight: 700, color: '#2C2C2A', margin: 0 },
-  sub:    { fontSize: 13, color: '#888780', marginTop: 4, marginBottom: 28 },
-  form:   { display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left' },
-  campo:  { display: 'flex', flexDirection: 'column', gap: 5 },
-  label:  { fontSize: 12, fontWeight: 600, color: '#5F5E5A' },
-  input:  {
-    padding: '10px 14px',
-    border: '1px solid #D3D1C7',
-    borderRadius: 10,
-    fontSize: 15,
-    outline: 'none',
-    fontFamily: 'inherit',
-  },
-  erro: { fontSize: 13, color: '#E24B4A', textAlign: 'center', margin: 0 },
-  btn: {
-    marginTop: 6,
-    padding: '13px',
-    background: '#1D9E75',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 10,
-    fontSize: 15,
-    fontWeight: 600,
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-  },
-  rodape: { fontSize: 12, color: '#888780', marginTop: 20 },
+function bolhaEstilo(i) {
+  const sizes  = [60,90,50,120,70,45,100,80]
+  const lefts  = [5,15,30,45,58,70,82,92]
+  const delays = [0,2,4,1,6,3,7,5]
+  const durs   = [12,16,10,18,14,11,20,15]
+  const size   = sizes[i]
+  return { width:size, height:size, left:`${lefts[i]}%`, bottom:`-${size}px`, animationDelay:`${delays[i]}s`, animationDuration:`${durs[i]}s` }
 }
