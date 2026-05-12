@@ -56,6 +56,10 @@ export default function Salas() {
   }
 
   async function salvar() {
+    console.log('=== SALVAR RESERVA ===')
+    console.log('inicio:', form.inicio, '| fim:', form.fim)
+    console.log('inicio slice:', form.inicio.slice(0,5), '| fim slice:', form.fim.slice(0,5))
+    console.log('fim <= inicio?', form.fim.slice(0,5) <= form.inicio.slice(0,5))
     if (!form.motivo.trim()) { setErro('Informe o motivo da reunião.'); return }
     if (estaOcupada(salaSel.id)) { setErro('Horário já ocupado.'); return }
     setErro('')
