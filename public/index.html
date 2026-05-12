@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#1D9E75" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ReservaFácil" />
+
+    <!-- SEO / compartilhamento -->
+    <meta name="description" content="Reserve salas de reunião e o carro da empresa de forma rápida." />
+    <meta property="og:title" content="ReservaFácil" />
+    <meta property="og:description" content="Reserve salas e veículos em um clique." />
+
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+    <title>ReservaFácil</title>
+
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        /* safe area para iPhones com notch */
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      #root { min-height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <noscript>Ative o JavaScript para usar o ReservaFácil.</noscript>
+    <div id="root"></div>
+
+    <script>
+      // Registra Service Worker (PWA)
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW registrado:', reg.scope))
+            .catch(err => console.warn('SW falhou:', err))
+        })
+      }
+    </script>
+  </body>
+</html>

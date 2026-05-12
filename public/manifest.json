@@ -1,0 +1,27 @@
+{
+  "short_name": "ReservaFácil",
+  "name": "ReservaFácil — Salas e Veículos",
+  "description": "Reserve salas de reunião e o carro da empresa de forma rápida.",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f5f0",
+  "theme_color": "#1D9E75",
+  "scope": "/",
+  "lang": "pt-BR",
+  "categories": ["productivity", "business"]
+}
