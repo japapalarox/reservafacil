@@ -33,13 +33,14 @@ export default function Salas() {
   const [erro, setErro]         = useState('')
 
   function estaOcupada(salaId) {
-    return reservas.some(r =>
-      r.tipo === 'sala' &&
-      r.sala_id === salaId &&
-      r.data === dataSel &&
-      r.status !== 'cancelado' &&
-      !(form.fim <= r.inicio || form.inicio >= r.fim)
-    )
+    return reservas.some(r => {
+      if (r.tipo !== 'sala' || r.sala_id !== salaId || r.data !== dataSel || r.status === 'cancelado') return false
+      const rInicio = (r.inicio || '').slice(0, 5)
+      const rFim    = (r.fim    || '').slice(0, 5)
+      const fInicio = form.inicio.slice(0, 5)
+      const fFim    = form.fim.slice(0, 5)
+      return !(fFim <= rInicio || fInicio >= rFim)
+    })
   }
 
   function reservasDaSala(salaId) {
