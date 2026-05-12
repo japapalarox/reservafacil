@@ -71,8 +71,8 @@ export default function Layout() {
         .layout-header { position:sticky; top:0; z-index:100; background:rgba(255,255,255,0.82); backdrop-filter:blur(20px) saturate(1.6); -webkit-backdrop-filter:blur(20px) saturate(1.6); border-bottom:1px solid rgba(255,107,26,0.08); box-shadow:0 1px 12px rgba(255,107,26,0.04); }
         .header-inner { max-width:980px; margin:0 auto; padding:0 20px; height:58px; display:flex; align-items:center; justify-content:space-between; }
         .brand { display:flex; align-items:center; gap:12px; }
-        .brand-icon { width:40px; height:40px; background:#000; border-radius:50%; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,0.25),0 0 0 2px rgba(255,107,26,0.3); transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1); flex-shrink:0; }
-        .brand:hover .brand-icon { transform:scale(1.1) rotate(-4deg); }
+        .brand-icon { width:40px; height:40px; background:#000; border-radius:50%; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,0.25),0 0 0 2px rgba(255,107,26,0.3); flex-shrink:0; animation:zoom 3s ease-in-out infinite; }
+        @keyframes zoom { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.18); } }
         .brand-name { font-weight:800; font-size:18px; background:linear-gradient(135deg,#FF6B1A,#E85000); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:-0.4px; }
         .header-right { display:flex; align-items:center; gap:10px; }
         .user-chip { font-size:12.5px; font-weight:700; background:linear-gradient(135deg,#FF8C3A,#FF6B1A); color:#fff; padding:4px 14px; border-radius:20px; box-shadow:0 2px 10px rgba(255,107,26,0.3); letter-spacing:0.2px; }
