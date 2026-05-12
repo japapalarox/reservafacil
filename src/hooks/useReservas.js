@@ -10,6 +10,7 @@ import {
 export function useSalas() {
   const [salas, setSalas]     = useState([])
   const [loading, setLoading] = useState(true)
+  const [erro, setErro]       = useState(null)
 
   useEffect(() => {
     supabase
@@ -17,10 +18,16 @@ export function useSalas() {
       .select('*')
       .eq('ativa', true)
       .order('id')
-      .then(({ data }) => { setSalas(data ?? []); setLoading(false) })
+      .then(({ data, error }) => {
+        console.log('SALAS data:', data)
+        console.log('SALAS error:', error)
+        if (error) setErro(error.message)
+        setSalas(data ?? [])
+        setLoading(false)
+      })
   }, [])
 
-  return { salas, loading }
+  return { salas, loading, erro }
 }
 
 export function useReservas(profile) {
@@ -34,7 +41,7 @@ export function useReservas(profile) {
     // admin carrega tudo + join com profiles; outros só as próprias
     let q = supabase
       .from('reservas')
-      .select(`*, sala:salas(nome,capacidade), autor:profiles(nome,telefone)`)
+      .select(`*, sala:salas(nome,capacidade), item:itens(nome,descricao), autor:profiles(nome,telefone)`)
       .order('data', { ascending: false })
       .order('inicio', { ascending: true })
 
@@ -60,10 +67,11 @@ export function useReservas(profile) {
   }, [carregar])
 
   // ── Criar reserva ──────────────────────────────────────────
-  async function criarReserva({ tipo, sala_id, data, inicio, fim, motivo }) {
+  async function criarReserva({ tipo, sala_id, item_id, data, inicio, fim, motivo }) {
     const payload = {
       tipo,
       sala_id: tipo === 'sala' ? sala_id : null,
+      item_id: tipo === 'item' ? item_id : null,
       user_id: profile.id,
       data,
       inicio,

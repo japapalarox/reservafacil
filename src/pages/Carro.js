@@ -9,32 +9,72 @@ const HORARIOS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00',
 function hoje() { return new Date().toISOString().split('T')[0] }
 
 export default function Carro() {
-  const { profile }               = useAuth()
+  const { profile }                = useAuth()
   const { reservas, criarReserva } = useReservas(profile)
 
-  const [dataSel, setDataSel] = useState(hoje())
-  const [form, setForm]       = useState({ inicio: '08:00', fim: '12:00', motivo: '' })
+  const [form, setForm] = useState({
+    dataInicio: hoje(),
+    dataFim:    hoje(),
+    inicio: '08:00',
+    fim:    '18:00',
+    motivo: ''
+  })
   const [salvando, setSalvando] = useState(false)
-  const [ok, setOk]           = useState(false)
-  const [erro, setErro]       = useState('')
+  const [ok, setOk]             = useState(false)
+  const [erro, setErro]         = useState('')
 
-  const reservasDia = reservas.filter(r =>
-    r.tipo === 'carro' && r.data === dataSel && r.status !== 'cancelado'
-  )
+  // Verifica conflito em qualquer dia do período
+  function temConflito() {
+    const d1 = new Date(form.dataInicio)
+    const d2 = new Date(form.dataFim)
+    for (let d = new Date(d1); d <= d2; d.setDate(d.getDate() + 1)) {
+      const dataStr = d.toISOString().split('T')[0]
+      const conflito = reservas.some(r =>
+        r.tipo === 'carro' && r.data === dataStr && r.status !== 'cancelado' &&
+        !(form.fim <= r.inicio || form.inicio >= r.fim)
+      )
+      if (conflito) return dataStr
+    }
+    return null
+  }
 
-  const ocupado = reservasDia.some(r =>
-    !(form.fim <= r.inicio || form.inicio >= r.fim)
-  )
+  function diasPeriodo() {
+    const d1 = new Date(form.dataInicio)
+    const d2 = new Date(form.dataFim)
+    const dias = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1
+    return dias
+  }
+
+  // Próximas reservas do carro
+  const proximasReservas = reservas
+    .filter(r => r.tipo === 'carro' && r.data >= hoje() && r.status !== 'cancelado')
+    .sort((a, b) => a.data.localeCompare(b.data))
+    .slice(0, 5)
 
   async function salvar() {
     if (!form.motivo.trim()) { setErro('Informe o destino / motivo.'); return }
-    if (ocupado) { setErro('Horário conflita com reserva existente.'); return }
+    if (form.dataFim < form.dataInicio) { setErro('Data de devolução não pode ser antes da retirada.'); return }
+    const conf = temConflito()
+    if (conf) { setErro(`Conflito de horário no dia ${new Date(conf+'T12:00').toLocaleDateString('pt-BR')}.`); return }
+
     setErro('')
     setSalvando(true)
     try {
-      await criarReserva({ tipo: 'carro', sala_id: null, data: dataSel, ...form })
+      // Cria uma reserva por dia do período
+      const d1 = new Date(form.dataInicio)
+      const d2 = new Date(form.dataFim)
+      for (let d = new Date(d1); d <= d2; d.setDate(d.getDate() + 1)) {
+        const dataStr = d.toISOString().split('T')[0]
+        await criarReserva({
+          tipo: 'carro', sala_id: null, item_id: null,
+          data: dataStr,
+          inicio: form.inicio,
+          fim: form.fim,
+          motivo: form.motivo + (diasPeriodo() > 1 ? ` (${form.dataInicio} → ${form.dataFim})` : '')
+        })
+      }
       setOk(true)
-      setTimeout(() => { setOk(false); setForm({ inicio: '08:00', fim: '12:00', motivo: '' }) }, 2500)
+      setTimeout(() => { setOk(false); setForm({ dataInicio: hoje(), dataFim: hoje(), inicio: '08:00', fim: '18:00', motivo: '' }) }, 2500)
     } catch (e) {
       setErro(e.message || 'Erro ao salvar reserva.')
     } finally {
@@ -42,114 +82,135 @@ export default function Carro() {
     }
   }
 
+  const conflito = temConflito()
+  const dias     = diasPeriodo()
+
   return (
-    <div className="carro-root">
-      <h2 className="carro-titulo">Reserva do Gol</h2>
+    <div style={s.wrap}>
+      <h2 style={s.titulo}>Reserva do Gol</h2>
 
-      <div className="carro-card">
-        {/* Cabeçalho do carro */}
-        <div className="carro-header">
-          <div className="carro-icone">🚗</div>
-          <div>
-            <div className="carro-nome">Volkswagen Gol</div>
-            <div className="carro-info">Placa ABC-1234 · Branco · 2020</div>
+      <div style={s.card}>
+        {ok ? (
+          <div style={s.okBox}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
+            <h3 style={{ marginBottom: 6 }}>Gol Reservado!</h3>
+            <p style={{ color: '#888', fontSize: 13 }}>
+              {form.dataInicio === form.dataFim
+                ? new Date(form.dataInicio+'T12:00').toLocaleDateString('pt-BR')
+                : `${new Date(form.dataInicio+'T12:00').toLocaleDateString('pt-BR')} → ${new Date(form.dataFim+'T12:00').toLocaleDateString('pt-BR')}`
+              }
+              <br/>{form.inicio} às {form.fim}
+            </p>
           </div>
-        </div>
-
-        {/* Filtro de data */}
-        <div className="carro-filtro">
-          <span>📅</span>
-          <input type="date" value={dataSel} min={hoje()}
-            onChange={e => setDataSel(e.target.value)} className="carro-input-data" />
-        </div>
-
-        {/* Reservas do dia */}
-        <div className="carro-secao">
-          <p className="carro-secao-titulo">Reservas para este dia:</p>
-          {reservasDia.length === 0
-            ? <p className="carro-vazio">✓ Carro livre neste dia</p>
-            : reservasDia.map(r => (
-              <div key={r.id} className="carro-ocup-block">
-                🕐 {r.inicio.slice(0,5)}–{r.fim.slice(0,5)} · {r.motivo}
+        ) : (
+          <>
+            {/* Header do carro */}
+            <div style={s.carroHeader}>
+              <div style={s.carroIcone}>🚗</div>
+              <div>
+                <div style={s.carroNome}>Volkswagen Gol</div>
+                <div style={s.carroInfo}>Placa ABC-1234 · Branco · 2020</div>
               </div>
-            ))
-          }
-        </div>
+            </div>
 
-        {/* Formulário */}
-        <div className="carro-form-grid">
-          <div className="carro-campo">
-            <label className="carro-label">Saída</label>
-            <select value={form.inicio}
-              onChange={e => setForm(f => ({ ...f, inicio: e.target.value }))}
-              className="carro-select">
-              {HORARIOS.map(h => <option key={h}>{h}</option>)}
-            </select>
-          </div>
-          <div className="carro-campo">
-            <label className="carro-label">Retorno</label>
-            <select value={form.fim}
-              onChange={e => setForm(f => ({ ...f, fim: e.target.value }))}
-              className="carro-select">
-              {HORARIOS.filter(h => h > form.inicio).map(h => <option key={h}>{h}</option>)}
-            </select>
-          </div>
-        </div>
+            {/* Período */}
+            <div style={s.secao}>
+              <p style={s.secaoTitulo}>📅 Período de uso</p>
+              <div style={s.periodoGrid}>
+                <div style={s.campo}>
+                  <label style={s.label}>Data de retirada</label>
+                  <input type="date" value={form.dataInicio} min={hoje()}
+                    onChange={e => setForm(f => ({ ...f, dataInicio: e.target.value, dataFim: e.target.value > f.dataFim ? e.target.value : f.dataFim }))}
+                    style={s.inputData}/>
+                </div>
+                <div style={s.campo}>
+                  <label style={s.label}>Data de devolução</label>
+                  <input type="date" value={form.dataFim} min={form.dataInicio}
+                    onChange={e => setForm(f => ({ ...f, dataFim: e.target.value }))}
+                    style={s.inputData}/>
+                </div>
+              </div>
+              {dias > 1 && (
+                <div style={s.diasTag}>📆 {dias} dias de uso</div>
+              )}
+            </div>
 
-        <div className="carro-campo">
-          <label className="carro-label">Destino / Motivo</label>
-          <input value={form.motivo}
-            onChange={e => setForm(f => ({ ...f, motivo: e.target.value }))}
-            placeholder="Ex: Visita ao cliente"
-            className="carro-input" />
-        </div>
+            {/* Horários */}
+            <div style={s.secao}>
+              <p style={s.secaoTitulo}>⏰ Horário diário</p>
+              <div style={s.periodoGrid}>
+                <div style={s.campo}>
+                  <label style={s.label}>Retirada</label>
+                  <select value={form.inicio} onChange={e => setForm(f => ({ ...f, inicio: e.target.value }))} style={s.select}>
+                    {HORARIOS.map(h => <option key={h}>{h}</option>)}
+                  </select>
+                </div>
+                <div style={s.campo}>
+                  <label style={s.label}>Devolução</label>
+                  <select value={form.fim} onChange={e => setForm(f => ({ ...f, fim: e.target.value }))} style={s.select}>
+                    {HORARIOS.filter(h => h > form.inicio).map(h => <option key={h}>{h}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
 
-        {ocupado && <p className="carro-aviso">⚠️ Horário conflita com reserva existente.</p>}
-        {erro    && <p className="carro-erro">{erro}</p>}
-        {ok      && <p className="carro-sucesso">✓ Gol reservado com sucesso!</p>}
+            <div style={s.campo}>
+              <label style={s.label}>Destino / Motivo</label>
+              <input value={form.motivo} onChange={e => setForm(f => ({ ...f, motivo: e.target.value }))}
+                placeholder="Ex: Visita ao cliente em São Paulo" style={s.input}/>
+            </div>
 
-        <button onClick={salvar} disabled={salvando || ocupado} className={`carro-btn ${ocupado ? 'carro-btn-disabled' : ''}`}>
-          {salvando ? 'Salvando…' : '✓ Reservar Gol'}
-        </button>
+            {conflito && <p style={s.aviso}>⚠️ Conflito de horário no dia {new Date(conflito+'T12:00').toLocaleDateString('pt-BR')}.</p>}
+            {erro     && <p style={s.erro}>{erro}</p>}
+
+            <button onClick={salvar} disabled={salvando || !!conflito} style={{ ...s.btn, opacity: conflito ? .5 : 1 }}>
+              {salvando ? 'Salvando…' : `✓ Reservar Gol${dias > 1 ? ` (${dias} dias)` : ''}`}
+            </button>
+          </>
+        )}
       </div>
 
-      <style>{`
-        .carro-root { max-width:600px; margin:0 auto; padding:24px 16px; animation:fadeIn 0.35s cubic-bezier(0.22,1,0.36,1); }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:none;} }
-        .carro-titulo { font-size:22px; font-weight:800; color:#2C2C2A; margin-bottom:20px; letter-spacing:-0.3px; }
-        .carro-card { background:rgba(255,255,255,0.9); backdrop-filter:blur(12px); border-radius:18px; border:1px solid rgba(255,107,26,0.12); padding:28px; box-shadow:0 4px 20px rgba(0,0,0,0.04); }
-        .carro-header { display:flex; align-items:center; gap:14px; margin-bottom:24px; }
-        .carro-icone { width:56px; height:56px; background:linear-gradient(135deg,#E6F1FB,#D6E8F5); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; box-shadow:0 4px 12px rgba(24,95,165,0.15); transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-        .carro-card:hover .carro-icone { transform:scale(1.08) rotate(-4deg); }
-        .carro-nome { font-weight:700; font-size:17px; color:#2C2C2A; }
-        .carro-info { font-size:12px; color:#888; margin-top:3px; }
-        .carro-filtro { display:flex; align-items:center; gap:10px; margin-bottom:20px; padding:12px 14px; background:#FFFAF7; border-radius:12px; border:1px solid #FFD4B8; }
-        .carro-input-data { padding:8px 12px; border:1.5px solid #FFD4B8; border-radius:10px; font-size:14px; font-family:inherit; background:#fff; color:#3A1F0D; transition:all 0.2s; }
-        .carro-input-data:focus { outline:none; border-color:#FF6B1A; box-shadow:0 0 0 3px rgba(255,107,26,0.12); }
-        .carro-secao { margin-bottom:20px; }
-        .carro-secao-titulo { font-size:13px; font-weight:600; color:#5F5E5A; margin-bottom:10px; }
-        .carro-vazio { font-size:13px; color:#3B6D11; background:#EAF3DE; padding:10px 14px; border-radius:10px; }
-        .carro-ocup-block { background:#FCEBEB; border-radius:10px; padding:10px 14px; font-size:13px; color:#A32D2D; margin-bottom:6px; border-left:3px solid #E24B4A; animation:slideIn 0.3s ease; }
-        @keyframes slideIn { from{opacity:0;transform:translateX(-8px);} to{opacity:1;transform:none;} }
-        .carro-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
-        .carro-campo { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
-        .carro-label { font-size:12px; font-weight:600; color:#7A5540; }
-        .carro-select { padding:10px 12px; border:1.5px solid #FFD4B8; border-radius:10px; font-size:14px; font-family:inherit; background:#FFFAF7; color:#3A1F0D; transition:all 0.2s; cursor:pointer; }
-        .carro-select:focus { outline:none; border-color:#FF6B1A; box-shadow:0 0 0 3px rgba(255,107,26,0.12); }
-        .carro-input { padding:11px 14px; border:1.5px solid #FFD4B8; border-radius:10px; font-size:14px; font-family:inherit; background:#FFFAF7; color:#3A1F0D; transition:all 0.2s; }
-        .carro-input:focus { outline:none; border-color:#FF6B1A; box-shadow:0 0 0 3px rgba(255,107,26,0.12); transform:translateY(-1px); }
-        .carro-input::placeholder { color:#D4B8A0; }
-        .carro-aviso { font-size:13px; color:#854F0B; margin-bottom:8px; background:#FAEEDA; padding:10px 14px; border-radius:10px; border-left:3px solid #FFB347; animation:shake 0.4s ease; }
-        .carro-erro { font-size:13px; color:#E24B4A; margin-bottom:8px; background:#FCEBEB; padding:10px 14px; border-radius:10px; border-left:3px solid #E24B4A; animation:shake 0.4s ease; }
-        @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
-        .carro-sucesso { font-size:13px; color:#3B6D11; background:#EAF3DE; padding:12px 14px; border-radius:10px; border-left:3px solid #3B6D11; animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
-        @keyframes popIn { from{transform:scale(0.9);opacity:0;} to{transform:scale(1);opacity:1;} }
-        .carro-btn { width:100%; padding:14px; background:linear-gradient(135deg,#1D9E75,#16A085); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(29,158,117,0.3); transition:all 0.2s ease; letter-spacing:0.3px; }
-        .carro-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 6px 24px rgba(29,158,117,0.4); filter:brightness(1.05); }
-        .carro-btn:active:not(:disabled) { transform:scale(0.97); }
-        .carro-btn:disabled { opacity:0.5; cursor:not-allowed; filter:grayscale(0.3); }
-        .carro-btn-disabled { opacity:0.5; cursor:not-allowed; }
-      `}</style>
+      {/* Próximas reservas */}
+      {proximasReservas.length > 0 && (
+        <div style={s.card}>
+          <p style={s.secaoTitulo}>📋 Próximas reservas do Gol</p>
+          {proximasReservas.map(r => (
+            <div key={r.id} style={s.reservaItem}>
+              <div style={s.reservaData}>{new Date(r.data+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</div>
+              <div style={s.reservaInfo}>
+                <div style={{ fontWeight: 600, fontSize: 13 }}>{r.autor?.nome || 'Usuário'}</div>
+                <div style={{ fontSize: 12, color: '#A07060' }}>{r.inicio?.slice(0,5)}–{r.fim?.slice(0,5)} · {r.motivo}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
+}
+
+const s = {
+  wrap:        { maxWidth: 600, margin: '0 auto', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 16 },
+  titulo:      { fontSize: 20, fontWeight: 700, color: '#3A1F0D', marginBottom: 4 },
+  card:        { background: '#fff', borderRadius: 14, border: '1.5px solid #FFE4CC', padding: 24, boxShadow: '0 2px 8px rgba(255,107,26,0.06)' },
+  carroHeader: { display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 },
+  carroIcone:  { width: 52, height: 52, background: '#FFF0E6', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 },
+  carroNome:   { fontWeight: 700, fontSize: 16, color: '#3A1F0D' },
+  carroInfo:   { fontSize: 12, color: '#A07060', marginTop: 2 },
+  secao:       { marginBottom: 16 },
+  secaoTitulo: { fontSize: 13, fontWeight: 700, color: '#7A5540', marginBottom: 10 },
+  periodoGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 },
+  campo:       { display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 },
+  label:       { fontSize: 12, fontWeight: 600, color: '#7A5540' },
+  inputData:   { padding: '9px 12px', border: '1.5px solid #FFD4B8', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', background: '#FFFAF7' },
+  select:      { padding: '9px 12px', border: '1.5px solid #FFD4B8', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', background: '#FFFAF7' },
+  input:       { padding: '10px 14px', border: '1.5px solid #FFD4B8', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', background: '#FFFAF7' },
+  diasTag:     { background: '#FFF0E6', color: '#C44D00', fontSize: 12, fontWeight: 700, padding: '5px 12px', borderRadius: 20, display: 'inline-block', marginTop: 6 },
+  aviso:       { fontSize: 13, color: '#854F0B', background: '#FFF8E0', padding: '8px 12px', borderRadius: 8, marginBottom: 8 },
+  erro:        { fontSize: 13, color: '#D94000', background: '#FFF0EA', padding: '8px 12px', borderRadius: 8, marginBottom: 8 },
+  btn:         { width: '100%', padding: 13, background: 'linear-gradient(135deg,#FF8C3A,#FF6B1A)', color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(255,107,26,0.3)', transition: 'opacity .15s' },
+  okBox:       { textAlign: 'center', padding: '20px 0' },
+  reservaItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #FFE4CC' },
+  reservaData: { background: '#FFF0E6', color: '#C44D00', fontWeight: 700, fontSize: 12, padding: '4px 10px', borderRadius: 8, flexShrink: 0 },
+  reservaInfo: { flex: 1 },
 }

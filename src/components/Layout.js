@@ -7,6 +7,7 @@ const abas = [
   { to: '/',          icon: '🏠', label: 'Início' },
   { to: '/salas',     icon: '🏢', label: 'Salas' },
   { to: '/carro',     icon: '🚗', label: 'Gol' },
+  { to: '/itens',     icon: '📦', label: 'Itens' },
   { to: '/historico', icon: '📋', label: 'Histórico' },
 ]
 
