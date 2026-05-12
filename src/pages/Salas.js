@@ -43,8 +43,15 @@ export default function Salas() {
   }
 
   function reservasDaSala(salaId) {
+    const agora = new Date().toTimeString().slice(0, 5) // "HH:MM"
     return reservas
-      .filter(r => r.tipo === 'sala' && r.sala_id === salaId && r.data === dataSel && r.status !== 'cancelado')
+      .filter(r => {
+        if (r.tipo !== 'sala' || r.sala_id !== salaId || r.status === 'cancelado') return false
+        if (r.data !== dataSel) return false
+        // Se for hoje, esconde reservas que já terminaram
+        if (r.data === hoje() && (r.fim || '').slice(0, 5) <= agora) return false
+        return true
+      })
       .sort((a, b) => (a.inicio || '').localeCompare(b.inicio || ''))
   }
 
