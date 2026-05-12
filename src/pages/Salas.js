@@ -196,7 +196,11 @@ export default function Salas() {
                   <div className="salas-campo">
                     <label className="salas-label">Início</label>
                     <select value={form.inicio}
-                      onChange={e => setForm(f => ({ ...f, inicio: e.target.value }))}
+                      onChange={e => {
+                        const novoInicio = e.target.value
+                        const novoFim = HORARIOS.find(h => h > novoInicio) || novoInicio
+                        setForm(f => ({ ...f, inicio: novoInicio, fim: novoFim }))
+                      }}
                       className="salas-select">
                       {HORARIOS.map(h => <option key={h}>{h}</option>)}
                     </select>
