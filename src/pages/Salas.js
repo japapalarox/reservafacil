@@ -57,7 +57,6 @@ export default function Salas() {
 
   async function salvar() {
     if (!form.motivo.trim()) { setErro('Informe o motivo da reunião.'); return }
-    if (form.fim.slice(0,5) <= form.inicio.slice(0,5)) { setErro('O horário de fim deve ser após o início.'); return }
     if (estaOcupada(salaSel.id)) { setErro('Horário já ocupado.'); return }
     setErro('')
     setSalvando(true)
