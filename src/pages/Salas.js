@@ -11,13 +11,13 @@ function hoje() { return new Date().toISOString().split('T')[0] }
 // Ícone visual por nome da sala
 function iconesSala(nome) {
   const n = nome.toLowerCase()
-  if (n.includes('forimagem'))  return { emoji: '🖼️', bg: '#E6F1FB', cor: '#185FA5' }
-  if (n.includes('subsolo'))    return { emoji: '⬇️', bg: '#FAEEDA', cor: '#633806' }
-  if (n.includes('acima'))      return { emoji: '⬆️', bg: '#EAF3DE', cor: '#27500A' }
-  if (n.includes('direita'))    return { emoji: '➡️', bg: '#E1F5EE', cor: '#085041' }
-  if (n.includes('esquerda'))   return { emoji: '⬅️', bg: '#EEEDFE', cor: '#3C3489' }
-  if (n.includes('custód') || n.includes('custodia')) return { emoji: '🔒', bg: '#FCEBEB', cor: '#791F1F' }
-  return { emoji: '🏢', bg: '#F1EFE8', cor: '#444441' }
+  if (n.includes('rep ticomia') || n.includes('subsolo'))  return { emoji: '⬇️', bg: '#FAEEDA', cor: '#633806' }
+  if (n.includes('viver'))      return { emoji: '🎉', bg: '#FFF0E6', cor: '#C44D00' }
+  if (n.includes('formando'))   return { emoji: '📖', bg: '#EAF3DE', cor: '#27500A' }
+  if (n.includes('pulo'))       return { emoji: '🐱', bg: '#EEEDFE', cor: '#3C3489' }
+  if (n.includes('eternizar'))  return { emoji: '✨', bg: '#E6F1FB', cor: '#185FA5' }
+  if (n.includes('formar'))     return { emoji: '🏆', bg: '#FCEBEB', cor: '#791F1F' }
+  return { emoji: '🏢', bg: '#FFF0E6', cor: '#C44D00' }
 }
 
 export default function Salas() {
@@ -45,7 +45,7 @@ export default function Salas() {
   function reservasDaSala(salaId) {
     return reservas
       .filter(r => r.tipo === 'sala' && r.sala_id === salaId && r.data === dataSel && r.status !== 'cancelado')
-      .sort((a, b) => a.inicio.localeCompare(b.inicio))
+      .sort((a, b) => (a.inicio || '').localeCompare(b.inicio || ''))
   }
 
   async function salvar() {
@@ -135,7 +135,7 @@ export default function Salas() {
                 <div className="salas-agenda">
                   {resHoje.map(r => (
                     <div key={r.id} className="salas-agenda-item">
-                      🕐 {r.inicio.slice(0,5)}–{r.fim.slice(0,5)}
+                      🕐 {(r.inicio||'').slice(0,5)}–{(r.fim||'').slice(0,5)}
                       <span className="salas-agenda-motivo">{r.motivo}</span>
                     </div>
                   ))}
