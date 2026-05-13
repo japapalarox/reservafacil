@@ -22,7 +22,10 @@ export default function Historico() {
   const [filtro, setFiltro]            = useState('todos')
   const [confirmando, setConfirmando]  = useState(null)
 
-  const filtradas = reservas.filter(r => {
+  // Filtra por usuário se não for admin
+  const minhas = profile?.papel === 'admin' ? reservas : reservas.filter(r => r.user_id === profile?.id)
+
+  const filtradas = minhas.filter(r => {
     if (filtro === 'todos')      return true
     if (filtro === 'sala')       return r.tipo === 'sala'
     if (filtro === 'carro')      return r.tipo === 'carro'

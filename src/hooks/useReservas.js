@@ -45,9 +45,8 @@ export function useReservas(profile) {
       .order('data', { ascending: false })
       .order('inicio', { ascending: true })
 
-    if (profile.papel !== 'admin') {
-      q = q.eq('user_id', profile.id)
-    }
+    // Todos veem todas as reservas (para saber quem ocupou sala/carro)
+    // Apenas o histórico pessoal filtra por user_id (feito na página)
 
     const { data, error } = await q
     if (!error) setReservas(data ?? [])
