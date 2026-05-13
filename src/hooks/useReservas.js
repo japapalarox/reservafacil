@@ -41,7 +41,7 @@ export function useReservas(profile) {
     // admin carrega tudo + join com profiles; outros só as próprias
     let q = supabase
       .from('reservas')
-      .select(`*, sala:salas(nome,capacidade), item:itens(nome,descricao), autor:profiles(nome,telefone)`)
+      .select(`*, sala:salas(nome,capacidade), item:itens(nome,descricao), autor:profiles(nome,telefone,email)`)
       .order('data', { ascending: false })
       .order('inicio', { ascending: true })
 

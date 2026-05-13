@@ -8,6 +8,12 @@ const HORARIOS = ['06:00','07:00','08:00','09:00','10:00','11:00','12:00',
 
 function hoje() { return new Date().toISOString().split('T')[0] }
 
+function nomeAutor(r) {
+  if (r.autor?.nome) return r.autor.nome
+  if (r.autor?.email) return r.autor.email.split('@')[0]
+  return 'Usuário'
+}
+
 export default function Carro() {
   const { profile }                = useAuth()
   const { reservas, criarReserva } = useReservas(profile)
@@ -178,7 +184,7 @@ export default function Carro() {
             <div key={r.id} style={s.reservaItem}>
               <div style={s.reservaData}>{new Date(r.data+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</div>
               <div style={s.reservaInfo}>
-                <div style={{ fontWeight: 600, fontSize: 13 }}>{r.autor?.nome || 'Usuário'}</div>
+                <div style={{ fontWeight: 600, fontSize: 13 }}>{nomeAutor(r)}</div>
                 <div style={{ fontSize: 12, color: '#A07060' }}>{r.inicio?.slice(0,5)}–{r.fim?.slice(0,5)} · {r.motivo}</div>
               </div>
             </div>

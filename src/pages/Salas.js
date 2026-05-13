@@ -8,6 +8,12 @@ const HORARIOS = ['07:00','08:00','09:00','10:00','11:00','12:00',
 
 function hoje() { return new Date().toISOString().split('T')[0] }
 
+function nomeAutor(r) {
+  if (r.autor?.nome) return r.autor.nome
+  if (r.autor?.email) return r.autor.email.split('@')[0]
+  return ''
+}
+
 // Ícone visual por nome da sala
 function iconesSala(nome) {
   const n = nome.toLowerCase()
@@ -149,6 +155,7 @@ export default function Salas() {
                     <div key={r.id} className="salas-agenda-item">
                       🕐 {(r.inicio||'').slice(0,5)}–{(r.fim||'').slice(0,5)}
                       <span className="salas-agenda-motivo">{r.motivo}</span>
+                      {nomeAutor(r) && <span style={{color:'#C44D00',fontWeight:600,flexShrink:0}}>· {nomeAutor(r)}</span>}
                     </div>
                   ))}
                 </div>
