@@ -39,14 +39,26 @@ export default function Salas() {
   const [erro, setErro]         = useState('')
 
   function estaOcupada(salaId) {
+    // Verifica se a sala tem reserva AGORA (horário atual) ou no dia selecionado
+    const agora = new Date().toTimeString().slice(0, 5)
     return reservas.some(r => {
       if (r.tipo !== 'sala' || r.sala_id !== salaId || r.data !== dataSel || r.status === 'cancelado') return false
       const rInicio = (r.inicio || '').slice(0, 5)
       const rFim    = (r.fim    || '').slice(0, 5)
-      const fInicio = form.inicio.slice(0, 5)
-      const fFim    = form.fim.slice(0, 5)
-      return !(fFim <= rInicio || fInicio >= rFim)
+      // Se for hoje, verifica se estamos dentro do horário da reserva agora
+      if (dataSel === hoje()) {
+        return agora >= rInicio && agora < rFim
+      }
+      // Para datas futuras, qualquer reserva no dia marca como ocupada
+      return true
     })
+  }
+
+  function temReservaNoDia(salaId) {
+    return reservas.some(r =>
+      r.tipo === 'sala' && r.sala_id === salaId &&
+      r.data === dataSel && r.status !== 'cancelado'
+    )
   }
 
   function reservasDaSala(salaId) {
@@ -119,19 +131,20 @@ export default function Salas() {
       {/* Grid de cards */}
       <div className="salas-grid">
         {salas.map(sala => {
-          const livre    = !estaOcupada(sala.id)
-          const icone    = iconesSala(sala.nome)
-          const resHoje  = reservasDaSala(sala.id)
+          const ocupadaAgora = estaOcupada(sala.id)
+          const temReserva   = temReservaNoDia(sala.id)
+          const icone        = iconesSala(sala.nome)
+          const resHoje      = reservasDaSala(sala.id)
 
           return (
-            <div key={sala.id} onClick={() => setSalaSel(sala)} className={`salas-card ${livre ? '' : 'salas-card-ocupada'}`}>
+            <div key={sala.id} onClick={() => setSalaSel(sala)} className={`salas-card ${ocupadaAgora ? 'salas-card-ocupada' : ''}`}>
               {/* Topo do card */}
               <div className="salas-card-topo">
                 <div className="salas-icone-box" style={{ background: icone.bg }}>
                   <span style={{ fontSize: 22 }}>{icone.emoji}</span>
                 </div>
-                <span className={`salas-badge ${livre ? 'salas-badge-ok' : 'salas-badge-err'}`}>
-                  {livre ? '● Livre' : '● Ocupada'}
+                <span className={`salas-badge ${ocupadaAgora ? 'salas-badge-err' : temReserva ? 'salas-badge-amber' : 'salas-badge-ok'}`}>
+                  {ocupadaAgora ? '● Ocupada' : temReserva ? '● Reservada hoje' : '● Livre'}
                 </span>
               </div>
 
@@ -268,6 +281,7 @@ export default function Salas() {
         .salas-card:hover .salas-icone-box { transform:scale(1.1) rotate(-4deg); }
         .salas-badge { font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
         .salas-badge-ok { background:#EAF3DE; color:#3B6D11; }
+        .salas-badge-amber { background:#FFF0E6; color:#C44D00; }
         .salas-badge-err { background:#FCEBEB; color:#A32D2D; }
         .salas-nome { font-weight:700; font-size:16px; color:#2C2C2A; }
         .salas-cap { font-size:12px; color:#888; }
