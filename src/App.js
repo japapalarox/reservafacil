@@ -10,7 +10,9 @@ import Salas    from './pages/Salas'
 import Carro    from './pages/Carro'
 import Historico from './pages/Historico'
 import Admin    from './pages/Admin'
-import Itens    from './pages/Itens'
+import Itens       from './pages/Itens'
+import Brindes     from './pages/Brindes'
+import Manutencao  from './pages/Manutencao'
 
 function RotaProtegida({ children, apenasAdmin }) {
   const { user, profile, loading } = useAuth()
@@ -34,7 +36,9 @@ export default function App() {
           <Route index            element={<Inicio />} />
           <Route path="salas"     element={<Salas />} />
           <Route path="carro"     element={<Carro />} />
-          <Route path="itens"     element={<Itens />} />
+          <Route path="itens"      element={<Itens />} />
+          <Route path="brindes"    element={<Brindes />} />
+          <Route path="manutencao" element={<Manutencao />} />
           <Route path="historico" element={<Historico />} />
           <Route path="admin"     element={
             <RotaProtegida apenasAdmin>

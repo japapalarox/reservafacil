@@ -4,11 +4,13 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 const abas = [
-  { to: '/',          icon: '🏠', label: 'Início' },
-  { to: '/salas',     icon: '🏢', label: 'Salas' },
-  { to: '/carro',     icon: '🚗', label: 'Gol' },
-  { to: '/itens',     icon: '📦', label: 'Itens' },
-  { to: '/historico', icon: '📋', label: 'Histórico' },
+  { to: '/',           icon: '🏠', label: 'Início' },
+  { to: '/salas',      icon: '🏢', label: 'Salas' },
+  { to: '/carro',      icon: '🚗', label: 'Gol' },
+  { to: '/itens',      icon: '📦', label: 'Itens' },
+  { to: '/brindes',    icon: '🎁', label: 'Brinde' },
+  { to: '/manutencao', icon: '🔧', label: 'Manutenção' },
+  { to: '/historico',  icon: '📋', label: 'Histórico' },
 ]
 
 export default function Layout() {
